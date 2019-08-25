@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">TDK Sözlük</string>
+    <string name="word_not_found">Kelime Bulunamadı!</string>
+    <string name="search">Ara</string>
+    <string name="listen">Dinle</string>
+    <string name="word">Sözcük</string>
+    <string name="meaning">Anlamı</string>
+    <string name="copy">Kopyala</string>
+    <string name="turkish_char_1">ç</string>
+    <string name="turkish_char_2">ğ</string>
+    <string name="turkish_char_3">ı</string>
+    <string name="turkish_char_4">ö</string>
+    <string name="turkish_char_5">ş</string>
+    <string name="turkish_char_6">ü</string>
+    <string name="turkish_char_7">â</string>
+    <string name="turkish_char_8">î</string>
+    <string name="turkish_char_9">û</string>
+    <string name="process_text_action_name">TDK Sözlükte Ara</string>
+</resources>
