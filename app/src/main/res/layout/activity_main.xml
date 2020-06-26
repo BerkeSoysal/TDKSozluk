@@ -1,235 +1,246 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+
+            android:id="@+id/turkish_char_1"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="turkish"
+            android:text="@string/turkish_char_1"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/button9"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="turkish"
+            android:text="@string/turkish_char_2"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/button8"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="turkish"
+            android:text="@string/turkish_char_3"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/button7"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="turkish"
+            android:text="@string/turkish_char_4"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/button6"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="turkish"
+            android:text="@string/turkish_char_5"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/button5"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="turkish"
+            android:text="@string/turkish_char_6"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/button3"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="turkish"
+            android:text="@string/turkish_char_7"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/button2"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="turkish"
+            android:text="@string/turkish_char_8"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/button11"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="turkish"
+            android:text="@string/turkish_char_9"
+            android:textAllCaps="false" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:baselineAligned="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
+
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".7"
+            android:orientation="horizontal"
+            android:visibility="visible">
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:completionThreshold="0"
+                android:hint="@string/word"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="110dp"
+            android:layout_height="match_parent"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <Button
+                    android:id="@+id/listen"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".5"
+                    android:drawableStart="@android:drawable/ic_media_play"
+                    android:drawableLeft="@android:drawable/ic_media_play"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/arama"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="46dp"
+                    android:layout_marginRight="46dp"
+                    android:layout_weight=".5"
+                    android:drawableStart="@android:drawable/ic_menu_search"
+                    android:drawableLeft="@android:drawable/ic_menu_search"
+                    android:text=""
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.218"
+                    app:layout_constraintStart_toEndOf="@+id/listen"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:layout_conversion_absoluteHeight="60dp"
+                    tools:layout_conversion_absoluteWidth="1dp" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+        <ScrollView
+            android:id="@+id/scrollView2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:id="@+id/linear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="vertical" />
+
+            </LinearLayout>
+        </ScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/adView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="45dp"
+            android:layout_marginBottom="16dp"
             app:adSize="BANNER"
-            app:adUnitId="ca-app-pub-3794325276172450/7274923080"></com.google.android.gms.ads.AdView>
+            app:adUnitId="ca-app-pub-3794325276172450/8957033162"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <LinearLayout
-            android:id="@+id/linearLayout2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <LinearLayout
-                style="?android:attr/buttonBarStyle"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:orientation="horizontal">
-
-                <Button
-
-                    android:id="@+id/turkish_char_1"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="turkish"
-                    android:text="@string/turkish_char_1"
-                    android:textAllCaps="false" />
-
-                <Button
-                    android:id="@+id/button9"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="turkish"
-                    android:text="@string/turkish_char_2"
-                    android:textAllCaps="false" />
-
-                <Button
-                    android:id="@+id/button8"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="turkish"
-                    android:text="@string/turkish_char_3"
-                    android:textAllCaps="false" />
-
-                <Button
-                    android:id="@+id/button7"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="turkish"
-                    android:text="@string/turkish_char_4"
-                    android:textAllCaps="false" />
-
-                <Button
-                    android:id="@+id/button6"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="turkish"
-                    android:text="@string/turkish_char_5"
-                    android:textAllCaps="false" />
-
-                <Button
-                    android:id="@+id/button5"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="turkish"
-                    android:text="@string/turkish_char_6"
-                    android:textAllCaps="false" />
-
-                <Button
-                    android:id="@+id/button3"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="turkish"
-                    android:text="@string/turkish_char_7"
-                    android:textAllCaps="false" />
-
-                <Button
-                    android:id="@+id/button2"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="turkish"
-                    android:text="@string/turkish_char_8"
-                    android:textAllCaps="false" />
-
-                <Button
-                    android:id="@+id/button11"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="turkish"
-                    android:text="@string/turkish_char_9"
-                    android:textAllCaps="false" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/linearLayout"
-                android:layout_width="match_parent"
-                android:layout_height="60dp">
-
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight=".7"
-                    android:orientation="horizontal"
-                    android:visibility="visible">
-
-                    <AutoCompleteTextView
-                        android:id="@+id/autoCompleteTextView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Sözcük"
-                        android:imeOptions="actionSearch"
-                        android:inputType="text"
-                        android:textSize="24sp"
-                        android:completionThreshold="0"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    style="?android:attr/buttonBarStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight=".3"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/arama"
-                        style="?android:attr/buttonBarButtonStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight=".5"
-                        android:drawableStart="@android:drawable/ic_menu_search"
-                        android:drawableLeft="@android:drawable/ic_menu_search"
-                        android:text=""
-                        tools:layout_conversion_absoluteHeight="60dp"
-                        tools:layout_conversion_absoluteWidth="1dp"
-                        tools:layout_editor_absoluteX="320dp"
-                        tools:layout_editor_absoluteY="52dp" />
-
-                    <Button
-                        android:id="@+id/listen"
-                        style="?android:attr/buttonBarButtonStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight=".5"
-                        android:drawableStart="@android:drawable/ic_media_play"
-                        android:drawableLeft="@android:drawable/ic_media_play" />
-
-                </LinearLayout>
-
-
-            </LinearLayout>
-
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <ScrollView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <LinearLayout
-                        android:id="@+id/linear_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/text"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:scrollbars="vertical" />
-
-                    </LinearLayout>
-                </ScrollView>
-
-                <Button
-                    android:id="@+id/copy"
-                    android:layout_width="58dp"
-                    android:layout_height="65dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:drawableStart="@drawable/copy"
-                    android:drawableLeft="@drawable/copy"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
-            </android.support.constraint.ConstraintLayout>
-
-
-        </LinearLayout>
-    </RelativeLayout>
-
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
