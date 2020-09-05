@@ -7,13 +7,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 
-public class DatabaseAccess {
-
+public class DatabaseAccess
+{
     private SQLiteOpenHelper openHelper;
     private SQLiteDatabase database;
     private static DatabaseAccess instance;
 
-    private DatabaseAccess(Context context) {
+    private DatabaseAccess(Context context)
+    {
         this.openHelper = new DatabaseOpenHelper(context);
     }
 
@@ -24,18 +25,22 @@ public class DatabaseAccess {
         return instance;
     }
 
-    public void open(){
+    public void open()
+    {
         this.database = openHelper.getWritableDatabase();
     }
 
-    public void close(){
-        if(database != null){
+    public void close()
+    {
+        if(database != null)
+        {
             this.database.close();
         }
     }
 
-    public String getDefinition(String word){
-        Cursor cursor = database.rawQuery("SELECT meaning FROM words WHERE TRIM(word) = '"+word + "' COLLATE NOCASE",null);
+    public String getDefinition(String word)
+    {
+        Cursor cursor = database.rawQuery("SELECT meaning FROM words WHERE TRIM(word) = '"+ word + "' COLLATE NOCASE",null);
         cursor.moveToFirst();
 
         if(cursor.getCount() > 0)
@@ -47,7 +52,8 @@ public class DatabaseAccess {
         return null;
     }
 
-    public String[] getSuggestions(String word) {
+    public String[] getSuggestions(String word)
+    {
         String[] words= new String[5];
 
         Cursor cursor = database.rawQuery("SELECT word FROM words WHERE TRIM(word) LIKE '"+word+"%' LIMIT 5",null);
@@ -62,8 +68,8 @@ public class DatabaseAccess {
     }
 
     //TODO implement this method
-    public void saveToCache(String word) {
-
+    public void saveToCache(String word)
+    {
         ContentValues contentValues = new ContentValues();
         contentValues.put("word", word);
         long value = database.insert("CACHE",null, contentValues);
@@ -78,7 +84,8 @@ public class DatabaseAccess {
         }
     }
 
-    public String[] getSuggestionsFromCache() {
+    public String[] getSuggestionsFromCache()
+    {
         String[] words= new String[5];
 
         Cursor cursor = database.rawQuery("SELECT word FROM CACHE LIMIT 5",null);

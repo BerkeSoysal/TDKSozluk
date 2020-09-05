@@ -1,7 +1,6 @@
 package com.berke.sozluk;
 
 import android.app.Activity;
-import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -32,7 +31,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.berke.sozluk.R;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -44,11 +42,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import io.sentry.Sentry;
-import io.sentry.event.BreadcrumbBuilder;
-
-public class MainActivity extends Activity {
-
+public class MainActivity extends Activity
+{
     private static final String DEFINITION_NOT_FOUND = "Sözcük bulunamadı.";
     private AutoCompleteTextView autoCompleteTextView;
     private DatabaseAccess databaseAccess;
@@ -58,7 +53,8 @@ public class MainActivity extends Activity {
     private String audioLink;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
 
         connectToDatabase();
 
@@ -84,7 +80,6 @@ public class MainActivity extends Activity {
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
         autoCompleteTextView.setTextSize(20);
 
-        //String[] placeHolder = new String[1]; //To initialize array adapter.
         ArrayList<String> lst = new ArrayList<>();
         final ArrayAdapter<String> adapter =new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, lst);
@@ -113,7 +108,8 @@ public class MainActivity extends Activity {
         });
 
         //Set keyboard button to fire search event
-        autoCompleteTextView.setOnEditorActionListener(new EditText.OnEditorActionListener(){
+        autoCompleteTextView.setOnEditorActionListener(new EditText.OnEditorActionListener()
+        {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
                 if(actionId == EditorInfo.IME_ACTION_SEARCH){
@@ -126,15 +122,16 @@ public class MainActivity extends Activity {
             }
         });
 
-        autoCompleteTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        autoCompleteTextView.setOnFocusChangeListener(new View.OnFocusChangeListener()
+        {
             @Override
             public void onFocusChange(View view, boolean b) {
                 autoCompleteTextView.showDropDown();
             }
         });
 
-        autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
+        autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
             @Override
             public void onItemClick(AdapterView<?> parent, View arg1, int pos,
                                     long id) {
@@ -144,10 +141,10 @@ public class MainActivity extends Activity {
             }
         });
 
-        ara.setOnClickListener(new View.OnClickListener() {
+        ara.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View v) {
-                //autoCompleteTextView.dismissDropDown();
                 final String searchedWord = autoCompleteTextView.getText().toString().trim();
                 fetchAndDisplay(searchedWord);
             }
@@ -163,7 +160,7 @@ public class MainActivity extends Activity {
                 toast.show();
             }
         });
-
+        */
         listen.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -171,19 +168,21 @@ public class MainActivity extends Activity {
                 getAudioFromWeb(searchedWord);
             }
         });
-        */
+
     }
 
-    private void createAdBanner() {
+    private void createAdBanner()
+    {
         //test ad ca-app-pub-3940256099942544/6300978111
         // real ad ca-app-pub-3794325276172450/8957033162
-        MobileAds.initialize(this, "ca-app-pub-3794325276172450/8957033162");
+        MobileAds.initialize(this, "ca-app-pub-3940256099942544/6300978111");
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
     }
 
-    private void connectToDatabase() {
+    private void connectToDatabase()
+    {
         databaseAccess = DatabaseAccess.getInstance(this);
         try {
             databaseAccess.open();
@@ -192,12 +191,8 @@ public class MainActivity extends Activity {
         }
     }
 
-
-    private void getAudioFromWeb(String word) {
-        Sentry.getContext().recordBreadcrumb(
-                new BreadcrumbBuilder().setMessage("User made a listen "+word).build()
-        );
-        Sentry.capture("capture lısten");
+    private void getAudioFromWeb(String word)
+    {
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = "https://sozluk.gov.tr/yazim?ara="+word;
 
@@ -211,7 +206,7 @@ public class MainActivity extends Activity {
                             JSONObject list = (JSONObject)reader.get(0);
                             String audiolink = (String)list.get("seskod");
                             if(audiolink!= null && !audiolink.equals("")) {
-                                audioLink = "http://sozluk.gov.tr/ses/" + audiolink + ".wav";
+                                audioLink = "https://sozluk.gov.tr/ses/" + audiolink + ".wav";
                                 Uri uri = Uri.parse(audioLink);
                                 MediaPlayer mp = new MediaPlayer();
                                 try {
@@ -220,7 +215,7 @@ public class MainActivity extends Activity {
                                     mp.prepare();
                                     mp.start();
                                 } catch (IOException e) {
-
+                                    e.printStackTrace();
                                 }
                             }
 
@@ -255,14 +250,11 @@ public class MainActivity extends Activity {
             }
         }
 
-        //adapter.notifyDataSetChanged();
-
         adapter.getFilter().filter("", null);
 
     }
 
-
-    public void turkish(View view) {
+    public void addTurkishCharacter(View view) {
         Button pressedButton = (Button)view;
         int position = autoCompleteTextView.getSelectionStart();
         String text = autoCompleteTextView.getText().toString();
@@ -274,12 +266,8 @@ public class MainActivity extends Activity {
         autoCompleteTextView.setSelection(position+1);
     }
 
-    public void fetchAndDisplay(String word){
-       // linearLayout.removeAllViews()
-        Sentry.getContext().recordBreadcrumb(
-                new BreadcrumbBuilder().setMessage("User searched for "+word).build()
-        );
-        Sentry.capture("capture search");
+    public void fetchAndDisplay(String word)
+    {
         String definition = databaseAccess.getDefinition(word);
         if (definition == null) {
             definitionTextView.setText(DEFINITION_NOT_FOUND);
@@ -291,8 +279,6 @@ public class MainActivity extends Activity {
             databaseAccess.saveToCache(word);
         }
         // Save to database
-
-
     }
 
 }

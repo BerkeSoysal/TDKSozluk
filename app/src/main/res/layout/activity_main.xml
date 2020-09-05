@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="turkish"
+            android:onClick="addTurkishCharacter"
             android:text="@string/turkish_char_1"
             android:textAllCaps="false" />
 
@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="turkish"
+            android:onClick="addTurkishCharacter"
             android:text="@string/turkish_char_2"
             android:textAllCaps="false" />
 
@@ -42,7 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="turkish"
+            android:onClick="addTurkishCharacter"
             android:text="@string/turkish_char_3"
             android:textAllCaps="false" />
 
@@ -52,7 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="turkish"
+            android:onClick="addTurkishCharacter"
             android:text="@string/turkish_char_4"
             android:textAllCaps="false" />
 
@@ -62,7 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="turkish"
+            android:onClick="addTurkishCharacter"
             android:text="@string/turkish_char_5"
             android:textAllCaps="false" />
 
@@ -72,7 +72,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="turkish"
+            android:onClick="addTurkishCharacter"
             android:text="@string/turkish_char_6"
             android:textAllCaps="false" />
 
@@ -82,7 +82,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="turkish"
+            android:onClick="addTurkishCharacter"
             android:text="@string/turkish_char_7"
             android:textAllCaps="false" />
 
@@ -92,7 +92,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="turkish"
+            android:onClick="addTurkishCharacter"
             android:text="@string/turkish_char_8"
             android:textAllCaps="false" />
 
@@ -102,7 +102,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="turkish"
+            android:onClick="addTurkishCharacter"
             android:text="@string/turkish_char_9"
             android:textAllCaps="false" />
     </LinearLayout>
@@ -235,7 +235,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:adSize="BANNER"
-            app:adUnitId="ca-app-pub-3794325276172450/8957033162"
+            app:adUnitId="ca-app-pub-3940256099942544/6300978111"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
