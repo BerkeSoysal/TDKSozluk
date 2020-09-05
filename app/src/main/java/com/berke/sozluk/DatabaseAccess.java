@@ -66,36 +66,4 @@ public class DatabaseAccess
         cursor.close();
         return words;
     }
-
-    //TODO implement this method
-    public void saveToCache(String word)
-    {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("word", word);
-        long value = database.insert("CACHE",null, contentValues);
-        value += 3;
-
-        Cursor cursor = database.rawQuery("SELECT word FROM CACHE",null);
-        cursor.moveToFirst();
-        for(int i=0; i< cursor.getCount();i++){
-            String a = cursor.getString(0);
-            a+="";
-            cursor.moveToNext();
-        }
-    }
-
-    public String[] getSuggestionsFromCache()
-    {
-        String[] words= new String[5];
-
-        Cursor cursor = database.rawQuery("SELECT word FROM CACHE LIMIT 5",null);
-        cursor.moveToFirst();
-        for(int i =0; i<words.length && i < cursor.getCount(); i++)
-        {
-            words[i] = cursor.getString(0);
-            cursor.moveToNext();
-        }
-        cursor.close();
-        return words;
-    }
 }
