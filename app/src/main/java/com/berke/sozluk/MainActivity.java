@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
@@ -17,9 +18,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.cardview.widget.CardView;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -34,6 +32,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MainActivity extends Activity {
     private static final String DEFINITION_NOT_FOUND = "Sözcük bulunamadı.";
@@ -41,10 +42,19 @@ public class MainActivity extends Activity {
     private DatabaseAccess databaseAccess;
     private TextView definitionTextView;
     private AdView mAdView;
+    Thread changeSuggestionThread = new Thread();
+    long delay = 1000; // 1 seconds after user stops typing
+    long last_text_edit = 0;
+    Handler handler = new Handler();
+    private ArrayAdapter<String> adapter;
 
+    private Runnable input_finish_checker = new Runnable() {
+        public void run() {
+            changeSuggestions(autoCompleteTextView.getText().toString(), adapter);
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         connectToDatabase();
 
         super.onCreate(savedInstanceState);
@@ -55,11 +65,9 @@ public class MainActivity extends Activity {
         createAdBanner();
 
         LinearLayout linearLayout = findViewById(R.id.linear_layout);
-        CardView initial = new CardView(MainActivity.this);
         definitionTextView = new TextView(MainActivity.this);
         definitionTextView.setTextSize(20);
-        initial.addView(definitionTextView);
-        linearLayout.addView(initial);
+        linearLayout.addView(definitionTextView);
 
         Button listen = findViewById(R.id.listen);
         Button ara = findViewById(R.id.arama);
@@ -67,25 +75,38 @@ public class MainActivity extends Activity {
         autoCompleteTextView.setTextSize(20);
 
         ArrayList<String> lst = new ArrayList<>();
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+        adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, lst);
 
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
         autoCompleteTextView.setAdapter(adapter);
         changeSuggestions(null, adapter);
 
+
+
         autoCompleteTextView.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable mEdit) {
-                String text = mEdit.toString();
-                changeSuggestions(text, adapter);
+                if (mEdit.length() > 0) {
+                    last_text_edit = System.currentTimeMillis();
+                    handler.postDelayed(input_finish_checker, 100);
+                } else {
+
+                }
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+                /*
+                Dont need this
+                */
+                //You need to remove this to run only once
+                handler.removeCallbacks(input_finish_checker);
             }
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                /*
+                Dont need this either
+                */
             }
         });
 
@@ -116,6 +137,7 @@ public class MainActivity extends Activity {
         listen.setOnClickListener(v -> {
             String searchedWord = autoCompleteTextView.getText().toString().trim();
             getAudioFromWeb(searchedWord);
+            fetchAndDisplay(searchedWord);
         });
 
     }
@@ -139,41 +161,51 @@ public class MainActivity extends Activity {
     }
 
     private void getAudioFromWeb(String word) {
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "https://sozluk.gov.tr/yazim?ara=" + word;
+        Thread thread = new Thread(() -> {
+            RequestQueue queue = Volley.newRequestQueue(this);
+            String url = "https://sozluk.gov.tr/yazim?ara=" + word;
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
 
-                response -> {
-                    try {
-                        JSONArray reader = new JSONArray(response);
-                        JSONObject list = (JSONObject) reader.get(0);
+                    response -> {
+                        try {
+                            JSONArray reader = new JSONArray(response);
+                            JSONObject list = (JSONObject) reader.get(0);
 
-                        Uri uri = Uri.parse("https://sozluk.gov.tr/ses/" + list.get("seskod") + ".wav");
-                        MediaPlayer mp = new MediaPlayer();
+                            if(list.get("seskod").equals("")) {
+                                Toast toast = Toast.makeText(getApplicationContext(), "Aranan sözcük için ses kaydı bulunmuyor.", Toast.LENGTH_SHORT);
+                                toast.show();
+                            }
+                            else {
+                                Uri uri = Uri.parse("https://sozluk.gov.tr/ses/" + list.get("seskod") + ".wav");
+                                MediaPlayer mp = new MediaPlayer();
+                                playPronunciation(uri, mp);
 
-                        playPronounciation(uri, mp);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                Toast toast = Toast.makeText(getApplicationContext(), "Bu özelliği kullanabilmek için internet bağlantınızın olması gerekmektedir.", Toast.LENGTH_LONG);
+                error.printStackTrace();
+                toast.show();
+            }
+            );
+            queue.add(stringRequest);
+        });
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }, error -> {
-                    Toast toast = Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT);
-                    error.printStackTrace();
-                    toast.show();
-                }
-        );
-        queue.add(stringRequest);
+        thread.start();
+
     }
 
-    private void playPronounciation(Uri uri, MediaPlayer mp) {
+    private void playPronunciation(Uri uri, MediaPlayer mp) {
         try {
             mp.reset();
             mp.setDataSource(getApplicationContext(), uri);
             mp.prepare();
             mp.start();
         } catch (IOException e) {
-            e.printStackTrace();
+                e.printStackTrace();
         }
     }
 
@@ -182,6 +214,8 @@ public class MainActivity extends Activity {
         if (!(word == null || word.equals(""))) {
             words = databaseAccess.getSuggestions(word);
             adapter.clear();
+
+
             for (String word1 : words) {
                 if (word1 != null) {
                     adapter.add(word1);
@@ -190,8 +224,6 @@ public class MainActivity extends Activity {
 
             adapter.getFilter().filter("", null);
         }
-
-
     }
 
     public void addTurkishCharacter(View view) {
