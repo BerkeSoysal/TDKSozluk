@@ -1,14 +1,9 @@
 package com.berke.sozluk;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class DatabaseAccess
@@ -16,8 +11,6 @@ public class DatabaseAccess
     private SQLiteOpenHelper openHelper;
     private SQLiteDatabase database;
     private static DatabaseAccess instance;
-    private String[] guessedWords;
-    private List<Thread> threadList = new ArrayList<>();
 
     private DatabaseAccess(Context context)
     {

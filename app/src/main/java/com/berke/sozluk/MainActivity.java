@@ -32,9 +32,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class MainActivity extends Activity {
     private static final String DEFINITION_NOT_FOUND = "Sözcük bulunamadı.";
@@ -42,14 +39,14 @@ public class MainActivity extends Activity {
     private DatabaseAccess databaseAccess;
     private TextView definitionTextView;
     private AdView mAdView;
-    Thread changeSuggestionThread = new Thread();
-    long delay = 1000; // 1 seconds after user stops typing
-    long last_text_edit = 0;
     Handler handler = new Handler();
     private ArrayAdapter<String> adapter;
+    long last_text_edit = 0;
 
-    private Runnable input_finish_checker = new Runnable() {
+
+    private Runnable changeSuggestionWhenUserStopped = new Runnable() {
         public void run() {
+            if(System.currentTimeMillis() > last_text_edit + 90);
             changeSuggestions(autoCompleteTextView.getText().toString(), adapter);
         }
     };
@@ -87,11 +84,9 @@ public class MainActivity extends Activity {
         autoCompleteTextView.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable mEdit) {
+                last_text_edit = System.currentTimeMillis();
                 if (mEdit.length() > 0) {
-                    last_text_edit = System.currentTimeMillis();
-                    handler.postDelayed(input_finish_checker, 100);
-                } else {
-
+                    handler.postDelayed(changeSuggestionWhenUserStopped, 100);
                 }
             }
 
@@ -100,7 +95,7 @@ public class MainActivity extends Activity {
                 Dont need this
                 */
                 //You need to remove this to run only once
-                handler.removeCallbacks(input_finish_checker);
+                handler.removeCallbacks(changeSuggestionWhenUserStopped);
             }
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {
