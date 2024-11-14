@@ -1,235 +1,239 @@
-package com.berke.sozluk;
+package com.berke.sozluk
 
-import android.app.Activity;
-import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.text.Editable;
-import android.text.Html;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.view.View;
-import android.view.Window;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import android.app.Activity
+import android.media.MediaPlayer
+import android.os.Bundle
+import android.os.Handler
+import android.text.Editable
+import android.text.Html
+import android.text.TextWatcher
+import android.util.Log
+import android.view.KeyEvent
+import android.view.View
+import android.view.Window
+import android.view.inputmethod.EditorInfo
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
+import com.android.volley.Request
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.ArrayList;
-
-public class MainActivity extends Activity {
-    private static final String DEFINITION_NOT_FOUND = "Sözcük bulunamadı.";
-    private AutoCompleteTextView autoCompleteTextView;
-    private DatabaseAccess databaseAccess;
-    private TextView definitionTextView;
-    Handler handler = new Handler();
-    private ArrayAdapter<String> adapter;
-    long last_text_edit = 0;
+class MainActivity : Activity() {
+    private var autoCompleteTextView: AutoCompleteTextView? = null
+    private var databaseAccess: DatabaseAccess? = null
+    private var definitionTextView: TextView? = null
+    var handler: Handler = Handler()
+    private var adapter: ArrayAdapter<String>? = null
+    var last_text_edit: Long = 0
 
 
-    private Runnable changeSuggestionWhenUserStopped = new Runnable() {
-        public void run() {
-            if(System.currentTimeMillis() > last_text_edit + 90);
-            changeSuggestions(autoCompleteTextView.getText().toString(), adapter);
-        }
-    };
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        connectToDatabase();
+    private val changeSuggestionWhenUserStopped = Runnable {
+        changeSuggestions(autoCompleteTextView!!.text.toString(), adapter!!)
+    }
 
-        super.onCreate(savedInstanceState);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        connectToDatabase()
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_main);
+        super.onCreate(savedInstanceState)
 
-        definitionTextView = findViewById(R.id.text);
-        definitionTextView.setTextSize(20);
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        setContentView(R.layout.activity_main)
 
-        Button listen = findViewById(R.id.listen);
-        Button ara = findViewById(R.id.arama);
-        autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
-        autoCompleteTextView.setTextSize(20);
+        definitionTextView = findViewById(R.id.text)
+        definitionTextView?.textSize = 20f
 
-        ArrayList<String> lst = new ArrayList<>();
-        adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_dropdown_item_1line, lst);
+        val listen = findViewById<Button>(R.id.listen)
+        val ara = findViewById<Button>(R.id.arama)
+        autoCompleteTextView = findViewById(R.id.autoCompleteTextView)
+        autoCompleteTextView?.textSize = 20f
 
-        autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
-        autoCompleteTextView.setAdapter(adapter);
-        changeSuggestions(null, adapter);
+        val lst = ArrayList<String>()
+        adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_dropdown_item_1line, lst
+        )
+
+        autoCompleteTextView = findViewById(R.id.autoCompleteTextView)
+        autoCompleteTextView?.setAdapter(adapter)
+        changeSuggestions(null, adapter!!)
 
 
 
-        autoCompleteTextView.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable mEdit) {
-                last_text_edit = System.currentTimeMillis();
-                if (mEdit.length() > 0) {
-                    handler.postDelayed(changeSuggestionWhenUserStopped, 100);
+        autoCompleteTextView?.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(mEdit: Editable) {
+                last_text_edit = System.currentTimeMillis()
+                if (mEdit.length > 0) {
+                    handler.postDelayed(changeSuggestionWhenUserStopped, 100)
                 }
             }
 
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
                 /*
                 Dont need this
                 */
                 //You need to remove this to run only once
-                handler.removeCallbacks(changeSuggestionWhenUserStopped);
+                handler.removeCallbacks(changeSuggestionWhenUserStopped)
             }
 
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 /*
                 Dont need this either
                 */
             }
-        });
+        })
 
         //Set keyboard button to fire search event
-        autoCompleteTextView.setOnEditorActionListener((v, actionId, event) -> {
+        autoCompleteTextView?.setOnEditorActionListener { v: TextView?, actionId: Int, event: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                final String searchedWord = autoCompleteTextView.getText().toString().trim();
-                autoCompleteTextView.dismissDropDown();
-                fetchAndDisplay(searchedWord);
-                return true;
+                val searchedWord = autoCompleteTextView?.getText().toString().trim { it <= ' ' }
+                autoCompleteTextView?.dismissDropDown()
+                fetchAndDisplay(searchedWord)
+                return@setOnEditorActionListener true
             }
-            return false;
-        });
+            false
+        }
 
-        autoCompleteTextView.setOnFocusChangeListener((view, b) -> autoCompleteTextView.showDropDown());
+        autoCompleteTextView?.setOnFocusChangeListener {
+            view: View?, b: Boolean ->
+            autoCompleteTextView?.showDropDown()
+        }
 
-        autoCompleteTextView.setOnItemClickListener((parent, arg1, pos, id) -> {
-            final String searchedWord = autoCompleteTextView.getText().toString().trim();
-            fetchAndDisplay(searchedWord);
+        autoCompleteTextView?.setOnItemClickListener { parent: AdapterView<*>?, arg1: View?, pos: Int, id: Long ->
+            val searchedWord = autoCompleteTextView?.getText().toString().trim { it <= ' ' }
+            fetchAndDisplay(searchedWord)
+        }
 
-        });
+        ara.setOnClickListener { v: View? ->
+            val searchedWord = autoCompleteTextView?.getText().toString().trim { it <= ' ' }
+            fetchAndDisplay(searchedWord)
+        }
 
-        ara.setOnClickListener(v -> {
-            final String searchedWord = autoCompleteTextView.getText().toString().trim();
-            fetchAndDisplay(searchedWord);
-        });
-
-        listen.setOnClickListener(v -> {
-            String searchedWord = autoCompleteTextView.getText().toString().trim();
-            getAudioFromWeb(searchedWord);
-            fetchAndDisplay(searchedWord);
-        });
-
-    }
-
-
-    private void connectToDatabase() {
-        databaseAccess = DatabaseAccess.getInstance(this);
-        try {
-            databaseAccess.open();
-        } catch (RuntimeException e) {
-            Log.e("app", "exception", e);
+        listen.setOnClickListener { v: View? ->
+            val searchedWord = autoCompleteTextView?.getText().toString().trim { it <= ' ' }
+            getAudioFromWeb(searchedWord)
+            fetchAndDisplay(searchedWord)
         }
     }
 
-    private void getAudioFromWeb(String word) {
-        Thread thread = new Thread(() -> {
-            RequestQueue queue = Volley.newRequestQueue(this);
-            String url = "https://sozluk.gov.tr/yazim?ara=" + word;
 
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+    private fun connectToDatabase() {
+        databaseAccess = DatabaseAccess.getInstance(this)
+        try {
+            databaseAccess?.open()
+        } catch (e: RuntimeException) {
+            Log.e("app", "exception", e)
+        }
+    }
 
-                    response -> {
-                        try {
-                            JSONArray reader = new JSONArray(response);
-                            JSONObject list = (JSONObject) reader.get(0);
+    private fun getAudioFromWeb(word: String) {
+        val thread = Thread {
+            val queue = Volley.newRequestQueue(this)
+            val url = "https://sozluk.gov.tr/yazim?ara=$word"
 
-                            if(list.get("seskod").equals("")) {
-                                Toast toast = Toast.makeText(getApplicationContext(), "Aranan sözcük için ses kaydı bulunmuyor.", Toast.LENGTH_SHORT);
-                                toast.show();
-                            }
-                            else {
-                                String urlEnd = "https://sozluk.gov.tr/ses/" + list.get("seskod") + ".wav";
-                                MediaPlayer mp = new MediaPlayer();
-                                playPronunciation(urlEnd, mp);
+            val stringRequest = StringRequest(
+                Request.Method.POST, url,
 
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                { response: String? ->
+                    try {
+                        val reader = JSONArray(response)
+                        val list = reader[0] as JSONObject
+
+                        if (list["seskod"] == "") {
+                            val toast = Toast.makeText(
+                                applicationContext,
+                                "Aranan sözcük için ses kaydı bulunmuyor.",
+                                Toast.LENGTH_SHORT
+                            )
+                            toast.show()
+                        } else {
+                            val urlEnd = "https://sozluk.gov.tr/ses/" + list["seskod"] + ".wav"
+                            val mp = MediaPlayer()
+                            playPronunciation(urlEnd, mp)
                         }
-                    }, error -> {
-                Toast toast = Toast.makeText(getApplicationContext(), "Bu özelliği kullanabilmek için internet bağlantınızın olması gerekmektedir.", Toast.LENGTH_LONG);
-                error.printStackTrace();
-                toast.show();
-            }
-            );
-            queue.add(stringRequest);
-        });
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                }, { error: VolleyError ->
+                    val toast = Toast.makeText(
+                        applicationContext,
+                        "Bu özelliği kullanabilmek için internet bağlantınızın olması gerekmektedir.",
+                        Toast.LENGTH_LONG
+                    )
+                    error.printStackTrace()
+                    toast.show()
+                }
+            )
+            queue.add(stringRequest)
+        }
 
-        thread.start();
-
+        thread.start()
     }
 
-    private void playPronunciation(String uri, MediaPlayer mp) {
+    private fun playPronunciation(uri: String, mp: MediaPlayer) {
         try {
-            mp.reset();
-            mp.setDataSource(uri);
-            mp.prepare();
-            mp.start();
-        } catch (IOException e) {
-                e.printStackTrace();
+            mp.reset()
+            mp.setDataSource(uri)
+            mp.prepare()
+            mp.start()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
 
-    private void changeSuggestions(String word, ArrayAdapter<String> adapter) {
-        String[] words;
-        if (!(word == null || word.equals(""))) {
-            words = databaseAccess.getSuggestions(word);
-            adapter.clear();
+    private fun changeSuggestions(word: String?, adapter: ArrayAdapter<String>) {
+        val words: Array<String>
+        if (!(word == null || word == "")) {
+            words = databaseAccess!!.getSuggestions(word)
+            adapter.clear()
 
 
-            for (String word1 : words) {
+            for (word1 in words) {
                 if (word1 != null) {
-                    adapter.add(word1);
+                    adapter.add(word1)
                 }
             }
 
-            adapter.getFilter().filter("", null);
+            adapter.filter.filter("", null)
         }
     }
 
-    public void addTurkishCharacter(View view) {
-        Button pressedButton = (Button) view;
-        int position = autoCompleteTextView.getSelectionStart();
-        String text = autoCompleteTextView.getText().toString();
-        String poststring = "";
-        if (text.length() > position)
-            poststring = text.substring(position);
-        String newword = text.substring(0, position) + pressedButton.getText().toString() + poststring;
-        autoCompleteTextView.setText(newword);
-        autoCompleteTextView.setSelection(position + 1);
+    fun addTurkishCharacter(view: View) {
+        val pressedButton = view as Button
+        val position = autoCompleteTextView!!.selectionStart
+        val text = autoCompleteTextView!!.text.toString()
+        var poststring = ""
+        if (text.length > position) poststring = text.substring(position)
+        val newword = text.substring(0, position) + pressedButton.text.toString() + poststring
+        autoCompleteTextView!!.setText(newword)
+        autoCompleteTextView!!.setSelection(position + 1)
     }
 
-    public void fetchAndDisplay(String word) {
-
+    fun fetchAndDisplay(word: String?) {
         // Update the TextView on the main thread
-        runOnUiThread(() -> {
-            String definition = databaseAccess.getDefinition(word);
+
+        runOnUiThread {
+            var definition = databaseAccess!!.getDefinition(word)
             if (definition == null) {
-                definitionTextView.setText(DEFINITION_NOT_FOUND);
+                definitionTextView!!.text =
+                    DEFINITION_NOT_FOUND
             } else {
-                definition = definition.replace("</tr>", "</tr><br>");
-                definitionTextView.setText(Html.fromHtml(definition));
-                definitionTextView.setTextIsSelectable(true);
+                definition = definition.replace("</tr>", "</tr><br>")
+                definitionTextView!!.text = Html.fromHtml(definition)
+                definitionTextView!!.setTextIsSelectable(true)
             }
-        });
+        }
     }
 
+    companion object {
+        private const val DEFINITION_NOT_FOUND = "Sözcük bulunamadı."
+    }
 }
