@@ -22,9 +22,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,7 +35,6 @@ public class MainActivity extends Activity {
     private AutoCompleteTextView autoCompleteTextView;
     private DatabaseAccess databaseAccess;
     private TextView definitionTextView;
-    private AdView mAdView;
     Handler handler = new Handler();
     private ArrayAdapter<String> adapter;
     long last_text_edit = 0;
@@ -59,12 +55,8 @@ public class MainActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
-        createAdBanner();
-
-        LinearLayout linearLayout = findViewById(R.id.linear_layout);
-        definitionTextView = new TextView(MainActivity.this);
+        definitionTextView = findViewById(R.id.text);
         definitionTextView.setTextSize(20);
-        linearLayout.addView(definitionTextView);
 
         Button listen = findViewById(R.id.listen);
         Button ara = findViewById(R.id.arama);
@@ -137,14 +129,6 @@ public class MainActivity extends Activity {
 
     }
 
-    private void createAdBanner() {
-        //test ad ca-app-pub-3940256099942544/6300978111
-        // real ad ca-app-pub-3794325276172450/8957033162
-        MobileAds.initialize(this, initializationStatus -> { });
-        mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-    }
 
     private void connectToDatabase() {
         databaseAccess = DatabaseAccess.getInstance(this);
@@ -172,9 +156,9 @@ public class MainActivity extends Activity {
                                 toast.show();
                             }
                             else {
-                                Uri uri = Uri.parse("https://sozluk.gov.tr/ses/" + list.get("seskod") + ".wav");
+                                String urlEnd = "https://sozluk.gov.tr/ses/" + list.get("seskod") + ".wav";
                                 MediaPlayer mp = new MediaPlayer();
-                                playPronunciation(uri, mp);
+                                playPronunciation(urlEnd, mp);
 
                             }
                         } catch (JSONException e) {
@@ -193,10 +177,10 @@ public class MainActivity extends Activity {
 
     }
 
-    private void playPronunciation(Uri uri, MediaPlayer mp) {
+    private void playPronunciation(String uri, MediaPlayer mp) {
         try {
             mp.reset();
-            mp.setDataSource(getApplicationContext(), uri);
+            mp.setDataSource(uri);
             mp.prepare();
             mp.start();
         } catch (IOException e) {
@@ -234,15 +218,18 @@ public class MainActivity extends Activity {
     }
 
     public void fetchAndDisplay(String word) {
-        String definition = databaseAccess.getDefinition(word);
-        if (definition == null) {
-            definitionTextView.setText(DEFINITION_NOT_FOUND);
-        } else {
-            definition = definition.replace("</tr>", "</tr><br>");
-            definitionTextView.setText(Html.fromHtml(definition));
-            definitionTextView.setTextIsSelectable(true);
-        }
-        // Save to database
+
+        // Update the TextView on the main thread
+        runOnUiThread(() -> {
+            String definition = databaseAccess.getDefinition(word);
+            if (definition == null) {
+                definitionTextView.setText(DEFINITION_NOT_FOUND);
+            } else {
+                definition = definition.replace("</tr>", "</tr><br>");
+                definitionTextView.setText("dsfd");
+                definitionTextView.setTextIsSelectable(true);
+            }
+        });
     }
 
 }
