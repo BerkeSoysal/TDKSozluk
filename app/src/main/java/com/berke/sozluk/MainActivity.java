@@ -226,7 +226,7 @@ public class MainActivity extends Activity {
                 definitionTextView.setText(DEFINITION_NOT_FOUND);
             } else {
                 definition = definition.replace("</tr>", "</tr><br>");
-                definitionTextView.setText("dsfd");
+                definitionTextView.setText(Html.fromHtml(definition));
                 definitionTextView.setTextIsSelectable(true);
             }
         });
