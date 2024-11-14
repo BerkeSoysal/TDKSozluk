@@ -4,6 +4,7 @@ import android.app.Activity
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.Html
 import android.text.TextWatcher
@@ -31,13 +32,18 @@ class MainActivity : Activity() {
     private var autoCompleteTextView: AutoCompleteTextView? = null
     private var databaseAccess: DatabaseAccess? = null
     private var definitionTextView: TextView? = null
-    var handler: Handler = Handler()
+    var handler: Handler = Handler(Looper.myLooper()!!)
     private var adapter: ArrayAdapter<String>? = null
     var last_text_edit: Long = 0
 
 
     private val changeSuggestionWhenUserStopped = Runnable {
         changeSuggestions(autoCompleteTextView!!.text.toString(), adapter!!)
+    }
+
+    override fun onDestroy() {
+        databaseAccess?.close()
+        super.onDestroy()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -190,7 +196,7 @@ class MainActivity : Activity() {
     }
 
     private fun changeSuggestions(word: String?, adapter: ArrayAdapter<String>) {
-        val words: Array<String>
+        val words: Array<String?>
         if (!(word == null || word == "")) {
             words = databaseAccess!!.getSuggestions(word)
             adapter.clear()
@@ -217,9 +223,7 @@ class MainActivity : Activity() {
         autoCompleteTextView!!.setSelection(position + 1)
     }
 
-    fun fetchAndDisplay(word: String?) {
-        // Update the TextView on the main thread
-
+    fun fetchAndDisplay(word: String) {
         runOnUiThread {
             var definition = databaseAccess!!.getDefinition(word)
             if (definition == null) {
@@ -227,7 +231,7 @@ class MainActivity : Activity() {
                     DEFINITION_NOT_FOUND
             } else {
                 definition = definition.replace("</tr>", "</tr><br>")
-                definitionTextView!!.text = Html.fromHtml(definition)
+                definitionTextView!!.text = Html.fromHtml(definition, Html.FROM_HTML_MODE_LEGACY)
                 definitionTextView!!.setTextIsSelectable(true)
             }
         }

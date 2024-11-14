@@ -1,17 +1,12 @@
-package com.berke.sozluk;
+package com.berke.sozluk
 
-import android.content.Context;
+import android.content.Context
+import com.readystatesoftware.sqliteasset.SQLiteAssetHelper
 
-import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
-
-public class DatabaseOpenHelper extends SQLiteAssetHelper
-{
-    private static final String DATABASE_NAME = "tdk.db";
-    private static final int DATABASE_VERSION = 1;
-
-    public DatabaseOpenHelper(Context context)
-    {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+class DatabaseOpenHelper(context: Context?) :
+    SQLiteAssetHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+    companion object {
+        private const val DATABASE_NAME = "tdk.db"
+        private const val DATABASE_VERSION = 1
     }
-
 }
