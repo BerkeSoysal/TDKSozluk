@@ -53,10 +53,10 @@ private constructor(context: Context) {
     }
 
     companion object {
-        private var instance: DatabaseAccess? = null
+        private lateinit var instance: DatabaseAccess
 
-        fun getInstance(context: Context): DatabaseAccess? {
-            if (instance == null) {
+        fun getInstance(context: Context): DatabaseAccess {
+            if (!::instance.isInitialized) {
                 instance = DatabaseAccess(context)
             }
             return instance

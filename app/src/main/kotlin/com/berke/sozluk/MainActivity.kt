@@ -23,44 +23,34 @@ import com.android.volley.Request
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.berke.sozluk.databinding.ActivityMainBinding
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
 class MainActivity : Activity() {
-    private var autoCompleteTextView: AutoCompleteTextView? = null
-    private var databaseAccess: DatabaseAccess? = null
-    private var definitionTextView: TextView? = null
+    private lateinit var databaseAccess: DatabaseAccess
     var handler: Handler = Handler(Looper.myLooper()!!)
     private var adapter: ArrayAdapter<String>? = null
+    private lateinit var binding: ActivityMainBinding
     var last_text_edit: Long = 0
-
-
     private val changeSuggestionWhenUserStopped = Runnable {
-        changeSuggestions(autoCompleteTextView!!.text.toString(), adapter!!)
+        changeSuggestions(binding.autoCompleteTextView.text.toString(), adapter!!)
     }
-
     override fun onDestroy() {
-        databaseAccess?.close()
+        databaseAccess.close()
         super.onDestroy()
     }
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        connectToDatabase()
-
-        super.onCreate(savedInstanceState)
-
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        setContentView(R.layout.activity_main)
-
-        definitionTextView = findViewById(R.id.text)
-        definitionTextView?.textSize = 20f
-
-        val listen = findViewById<Button>(R.id.listen)
-        val ara = findViewById<Button>(R.id.arama)
-        autoCompleteTextView = findViewById(R.id.autoCompleteTextView)
-        autoCompleteTextView?.textSize = 20f
+        connectToDatabase()
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val lst = ArrayList<String>()
         adapter = ArrayAdapter(
@@ -68,13 +58,13 @@ class MainActivity : Activity() {
             android.R.layout.simple_dropdown_item_1line, lst
         )
 
-        autoCompleteTextView = findViewById(R.id.autoCompleteTextView)
-        autoCompleteTextView?.setAdapter(adapter)
+        val autoCompleteTextView = binding.autoCompleteTextView
+        autoCompleteTextView.setAdapter(adapter)
         changeSuggestions(null, adapter!!)
 
 
 
-        autoCompleteTextView?.addTextChangedListener(object : TextWatcher {
+        autoCompleteTextView.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(mEdit: Editable) {
                 last_text_edit = System.currentTimeMillis()
                 if (mEdit.length > 0) {
@@ -98,33 +88,32 @@ class MainActivity : Activity() {
         })
 
         //Set keyboard button to fire search event
-        autoCompleteTextView?.setOnEditorActionListener { v: TextView?, actionId: Int, event: KeyEvent? ->
+        binding.autoCompleteTextView.setOnEditorActionListener { _: TextView?, actionId: Int, _: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                val searchedWord = autoCompleteTextView?.getText().toString().trim { it <= ' ' }
-                autoCompleteTextView?.dismissDropDown()
+                val searchedWord = binding.autoCompleteTextView.getText().toString().trim { it <= ' ' }
+                binding.autoCompleteTextView.dismissDropDown()
                 fetchAndDisplay(searchedWord)
                 return@setOnEditorActionListener true
             }
             false
         }
 
-        autoCompleteTextView?.setOnFocusChangeListener {
-            view: View?, b: Boolean ->
-            autoCompleteTextView?.showDropDown()
+        binding.autoCompleteTextView.setOnFocusChangeListener { _: View?, _: Boolean ->
+            binding.autoCompleteTextView.showDropDown()
         }
 
-        autoCompleteTextView?.setOnItemClickListener { parent: AdapterView<*>?, arg1: View?, pos: Int, id: Long ->
-            val searchedWord = autoCompleteTextView?.getText().toString().trim { it <= ' ' }
+        binding.autoCompleteTextView.setOnItemClickListener { _: AdapterView<*>?, _: View?, _: Int, _: Long ->
+            val searchedWord = binding.autoCompleteTextView.getText().toString().trim { it <= ' ' }
             fetchAndDisplay(searchedWord)
         }
 
-        ara.setOnClickListener { v: View? ->
-            val searchedWord = autoCompleteTextView?.getText().toString().trim { it <= ' ' }
+        binding.arama.setOnClickListener {
+            val searchedWord = binding.autoCompleteTextView.getText().toString().trim { it <= ' ' }
             fetchAndDisplay(searchedWord)
         }
 
-        listen.setOnClickListener { v: View? ->
-            val searchedWord = autoCompleteTextView?.getText().toString().trim { it <= ' ' }
+        binding.listen.setOnClickListener {
+            val searchedWord = binding.autoCompleteTextView.getText().toString().trim { it <= ' ' }
             getAudioFromWeb(searchedWord)
             fetchAndDisplay(searchedWord)
         }
@@ -134,7 +123,7 @@ class MainActivity : Activity() {
     private fun connectToDatabase() {
         databaseAccess = DatabaseAccess.getInstance(this)
         try {
-            databaseAccess?.open()
+            databaseAccess.open()
         } catch (e: RuntimeException) {
             Log.e("app", "exception", e)
         }
@@ -147,21 +136,20 @@ class MainActivity : Activity() {
 
             val stringRequest = StringRequest(
                 Request.Method.POST, url,
-
                 { response: String? ->
                     try {
                         val reader = JSONArray(response)
                         val list = reader[0] as JSONObject
 
-                        if (list["seskod"] == "") {
+                        if (list[LISTEN_AUDIO_CODE] == "") {
                             val toast = Toast.makeText(
                                 applicationContext,
-                                "Aranan sözcük için ses kaydı bulunmuyor.",
+                                LISTEN_RECORD_NOT_FOUND,
                                 Toast.LENGTH_SHORT
                             )
                             toast.show()
                         } else {
-                            val urlEnd = "https://sozluk.gov.tr/ses/" + list["seskod"] + ".wav"
+                            val urlEnd = "https://sozluk.gov.tr/ses/" + list[LISTEN_AUDIO_CODE] + ".wav"
                             val mp = MediaPlayer()
                             playPronunciation(urlEnd, mp)
                         }
@@ -171,7 +159,7 @@ class MainActivity : Activity() {
                 }, { error: VolleyError ->
                     val toast = Toast.makeText(
                         applicationContext,
-                        "Bu özelliği kullanabilmek için internet bağlantınızın olması gerekmektedir.",
+                        LISTEN_NO_INTERNET_AVAILABLE,
                         Toast.LENGTH_LONG
                     )
                     error.printStackTrace()
@@ -190,6 +178,9 @@ class MainActivity : Activity() {
             mp.setDataSource(uri)
             mp.prepare()
             mp.start()
+            mp.setOnCompletionListener { mediaPlayer ->
+                mediaPlayer.release() // Release MediaPlayer when playback finishes
+            }
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -198,7 +189,7 @@ class MainActivity : Activity() {
     private fun changeSuggestions(word: String?, adapter: ArrayAdapter<String>) {
         val words: Array<String?>
         if (!(word == null || word == "")) {
-            words = databaseAccess!!.getSuggestions(word)
+            words = databaseAccess.getSuggestions(word)
             adapter.clear()
 
 
@@ -214,30 +205,26 @@ class MainActivity : Activity() {
 
     fun addTurkishCharacter(view: View) {
         val pressedButton = view as Button
-        val position = autoCompleteTextView!!.selectionStart
-        val text = autoCompleteTextView!!.text.toString()
-        var poststring = ""
-        if (text.length > position) poststring = text.substring(position)
-        val newword = text.substring(0, position) + pressedButton.text.toString() + poststring
-        autoCompleteTextView!!.setText(newword)
-        autoCompleteTextView!!.setSelection(position + 1)
+        val position = binding.autoCompleteTextView.selectionStart
+        binding.autoCompleteTextView.editableText.insert(position, pressedButton.text.toString())
     }
 
-    fun fetchAndDisplay(word: String) {
-        runOnUiThread {
-            var definition = databaseAccess!!.getDefinition(word)
-            if (definition == null) {
-                definitionTextView!!.text =
-                    DEFINITION_NOT_FOUND
-            } else {
-                definition = definition.replace("</tr>", "</tr><br>")
-                definitionTextView!!.text = Html.fromHtml(definition, Html.FROM_HTML_MODE_LEGACY)
-                definitionTextView!!.setTextIsSelectable(true)
-            }
+    private fun fetchAndDisplay(word: String) {
+        var definition = databaseAccess.getDefinition(word)
+        if (definition == null) {
+            binding.text.text =
+                DEFINITION_NOT_FOUND
+        } else {
+            definition = definition.replace("</tr>", "</tr><br>")
+            binding.text.text = Html.fromHtml(definition, Html.FROM_HTML_MODE_LEGACY)
+            binding.text.setTextIsSelectable(true)
         }
     }
 
     companion object {
         private const val DEFINITION_NOT_FOUND = "Sözcük bulunamadı."
+        private const val LISTEN_NO_INTERNET_AVAILABLE = "Bu özelliği kullanabilmek için internet bağlantınızın olması gerekmektedir."
+        private const val LISTEN_RECORD_NOT_FOUND = "Aranan sözcük için ses kaydı bulunamadı."
+        private const val LISTEN_AUDIO_CODE = "seskod"
     }
 }
