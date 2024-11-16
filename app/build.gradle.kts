@@ -11,15 +11,15 @@ android {
         applicationId = "com.berke.sozluk"
         minSdk = 24
         targetSdk = 34
-        versionCode = 35
-        versionName = "1.3"
+        versionCode = 38
+        versionName = "1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
