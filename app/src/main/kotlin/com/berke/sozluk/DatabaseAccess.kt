@@ -19,6 +19,19 @@ private constructor(context: Context) {
         }
     }
 
+    fun getAllWords(): List<String> {
+        val words = mutableListOf<String>()
+        val cursor = database!!.rawQuery("SELECT word FROM words", null)
+        cursor.moveToFirst()
+        while (!cursor.isAfterLast) {
+            words.add(cursor.getString(0))
+            cursor.moveToNext()
+        }
+        cursor.close()
+        return words
+    }
+
+
     fun getDefinition(word: String): String? {
         val cursor = database!!.rawQuery(
             "SELECT meaning FROM words WHERE TRIM(word) = '$word' COLLATE NOCASE",
@@ -32,24 +45,6 @@ private constructor(context: Context) {
             return definition
         }
         return null
-    }
-
-    fun getSuggestions(word: String): Array<String?> {
-        val words = arrayOfNulls<String>(5)
-        val dbWord = "$word%"
-        val cursor = database!!.rawQuery(
-            "SELECT word FROM words WHERE TRIM(word) LIKE ? LIMIT 5",
-            arrayOf(dbWord)
-        )
-        cursor.moveToFirst()
-        var i = 0
-        while (i < words.size && i < cursor.count) {
-            words[i] = cursor.getString(0)
-            cursor.moveToNext()
-            i++
-        }
-        cursor.close()
-        return words
     }
 
     companion object {

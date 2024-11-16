@@ -1,5 +1,6 @@
 package com.berke.sozluk
 
+import Trie
 import android.app.Activity
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -15,7 +16,6 @@ import android.view.Window
 import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -35,6 +35,8 @@ class MainActivity : Activity() {
     private var adapter: ArrayAdapter<String>? = null
     private lateinit var binding: ActivityMainBinding
     var last_text_edit: Long = 0
+    val trie: Trie = Trie()
+
     private val changeSuggestionWhenUserStopped = Runnable {
         changeSuggestions(binding.autoCompleteTextView.text.toString(), adapter!!)
     }
@@ -57,6 +59,11 @@ class MainActivity : Activity() {
             this,
             android.R.layout.simple_dropdown_item_1line, lst
         )
+
+        val allWords = databaseAccess.getAllWords()
+        for(word in allWords) {
+            trie.insert(word)
+        }
 
         val autoCompleteTextView = binding.autoCompleteTextView
         autoCompleteTextView.setAdapter(adapter)
@@ -186,19 +193,12 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun changeSuggestions(word: String?, adapter: ArrayAdapter<String>) {
-        val words: Array<String?>
-        if (!(word == null || word == "")) {
-            words = databaseAccess.getSuggestions(word)
+    private fun changeSuggestions(typedWord: String?, adapter: ArrayAdapter<String>) {
+        val words: List<String>
+        if (!(typedWord == null || typedWord == "")) {
+            words = trie.searchByPrefix(typedWord)
             adapter.clear()
-
-
-            for (word1 in words) {
-                if (word1 != null) {
-                    adapter.add(word1)
-                }
-            }
-
+            adapter.addAll(words)
             adapter.filter.filter("", null)
         }
     }
