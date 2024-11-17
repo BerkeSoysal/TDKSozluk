@@ -10,7 +10,7 @@ private constructor(context: Context) {
     private var database: SQLiteDatabase? = null
 
     fun open() {
-        this.database = openHelper.writableDatabase
+        this.database = openHelper.readableDatabase
     }
 
     fun close() {
@@ -53,6 +53,7 @@ private constructor(context: Context) {
         fun getInstance(context: Context): DatabaseAccess {
             if (!::instance.isInitialized) {
                 instance = DatabaseAccess(context)
+                instance.open()
             }
             return instance
         }

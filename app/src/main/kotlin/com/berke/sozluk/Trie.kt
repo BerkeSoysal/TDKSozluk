@@ -13,8 +13,8 @@ class Trie {
         return when (c) {
             'Ç', 'ç' -> 'ç'
             'Ğ', 'ğ' -> 'ğ'
-            'İ' -> 'i' // Turkish-specific: 'İ' -> 'i'
-            'I' -> 'ı' // Turkish-specific: 'I' -> 'ı'
+            'İ', 'i' -> 'i' // Turkish-specific: 'İ' -> 'i'
+            'I', 'ı' -> 'ı' // Turkish-specific: 'I' -> 'ı'
             'Ö', 'ö' -> 'ö'
             'Ş', 'ş' -> 'ş'
             'Ü', 'ü' -> 'ü'

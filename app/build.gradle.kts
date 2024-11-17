@@ -42,4 +42,5 @@ dependencies {
     implementation(libs.material)
     implementation(libs.volley)
     implementation(libs.sqlite)
+    implementation(libs.lifecycle)
 }

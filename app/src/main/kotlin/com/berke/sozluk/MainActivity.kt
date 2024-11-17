@@ -1,7 +1,6 @@
 package com.berke.sozluk
 
 import Trie
-import android.app.Activity
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -19,6 +18,8 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.android.volley.Request
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
@@ -29,7 +30,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
-class MainActivity : Activity() {
+class MainActivity : AppCompatActivity() {
     private lateinit var databaseAccess: DatabaseAccess
     var handler: Handler = Handler(Looper.myLooper()!!)
     private var adapter: ArrayAdapter<String>? = null
@@ -45,14 +46,20 @@ class MainActivity : Activity() {
         super.onDestroy()
     }
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         connectToDatabase()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        databaseAccess = DatabaseAccess.getInstance(this)
+        val repository = WordRepository(databaseAccess)
+        val viewModel = ViewModelProvider(this, ViewModelFactory(repository))[WordViewModel::class.java]
+
+        viewModel.definition.observe(this) { definition ->
+            binding.text.text = Html.fromHtml(definition, Html.FROM_HTML_MODE_LEGACY)
+        }
 
         val lst = ArrayList<String>()
         adapter = ArrayAdapter(
@@ -68,9 +75,6 @@ class MainActivity : Activity() {
         val autoCompleteTextView = binding.autoCompleteTextView
         autoCompleteTextView.setAdapter(adapter)
         changeSuggestions(null, adapter!!)
-
-
-
         autoCompleteTextView.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(mEdit: Editable) {
                 last_text_edit = System.currentTimeMillis()
@@ -99,7 +103,7 @@ class MainActivity : Activity() {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val searchedWord = binding.autoCompleteTextView.getText().toString().trim { it <= ' ' }
                 binding.autoCompleteTextView.dismissDropDown()
-                fetchAndDisplay(searchedWord)
+                viewModel.fetchDefinition(searchedWord)
                 return@setOnEditorActionListener true
             }
             false
@@ -111,18 +115,19 @@ class MainActivity : Activity() {
 
         binding.autoCompleteTextView.setOnItemClickListener { _: AdapterView<*>?, _: View?, _: Int, _: Long ->
             val searchedWord = binding.autoCompleteTextView.getText().toString().trim { it <= ' ' }
-            fetchAndDisplay(searchedWord)
+            viewModel.fetchDefinition(searchedWord)
         }
 
         binding.arama.setOnClickListener {
             val searchedWord = binding.autoCompleteTextView.getText().toString().trim { it <= ' ' }
-            fetchAndDisplay(searchedWord)
+            viewModel.fetchDefinition(searchedWord)
+
         }
 
         binding.listen.setOnClickListener {
             val searchedWord = binding.autoCompleteTextView.getText().toString().trim { it <= ' ' }
             getAudioFromWeb(searchedWord)
-            fetchAndDisplay(searchedWord)
+            viewModel.fetchDefinition(searchedWord)
         }
     }
 
@@ -207,18 +212,6 @@ class MainActivity : Activity() {
         val pressedButton = view as Button
         val position = binding.autoCompleteTextView.selectionStart
         binding.autoCompleteTextView.editableText.insert(position, pressedButton.text.toString())
-    }
-
-    private fun fetchAndDisplay(word: String) {
-        var definition = databaseAccess.getDefinition(word)
-        if (definition == null) {
-            binding.text.text =
-                DEFINITION_NOT_FOUND
-        } else {
-            definition = definition.replace("</tr>", "</tr><br>")
-            binding.text.text = Html.fromHtml(definition, Html.FROM_HTML_MODE_LEGACY)
-            binding.text.setTextIsSelectable(true)
-        }
     }
 
     companion object {
