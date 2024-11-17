@@ -101,32 +101,21 @@ class Trie {
         findWords(current, prefix, result)
         return result
     }
-
+    private val indexToChar = listOf(
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+        'o', 'p', 'r', 's', 't', 'u', 'v', 'y', 'z', // English letters used
+        'ç', 'ğ', 'ı', 'ö', 'ş', 'ü', 'â', 'î', 'û', // Turkish-specific letters
+        ' ', '/', '-', '.', '\'', // Special characters
+        '?' // Fallback for unexpected cases
+    )
     // Helper function to perform DFS and collect words
     private fun findWords(node: TrieNode?, prefix: String, result: MutableList<String>) {
         if (result.size == 5 || node == null) return // Stop if 5 words are found
         if (node.isEndOfWord) result.add(node.originalWord!!)
 
         for ((index, child) in node.children.withIndex()) {
-            if (child != null) {
-                val nextChar = when (index) {
-                    in 0..22 -> 'a' + index // English alphabet indices
-                    23 -> 'ç'
-                    24 -> 'ğ'
-                    25 -> 'ı'
-                    26 -> 'ö'
-                    27 -> 'ş'
-                    28 -> 'ü'
-                    29 -> 'â'
-                    30 -> 'î'
-                    31 -> 'û'
-                    32 -> ' '
-                    33 -> '/'
-                    34 -> '-'
-                    35 -> '.'
-                    36 -> '\''
-                    else -> '?' // Fallback for unexpected cases
-                }
+            if (child != null && index < indexToChar.size) {
+                val nextChar = indexToChar[index]
                 findWords(child, prefix + nextChar, result)
             }
         }
