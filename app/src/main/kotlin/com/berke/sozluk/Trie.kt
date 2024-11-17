@@ -30,32 +30,32 @@ class Trie {
             'a' -> 0
             'b' -> 1
             'c' -> 2
-            'ç' -> 3
-            'd' -> 4
-            'e' -> 5
-            'f' -> 6
-            'g' -> 7
-            'ğ' -> 8
-            'h' -> 9
-            'ı' -> 10
-            'i' -> 11
-            'j' -> 12
-            'k' -> 13
-            'l' -> 14
-            'm' -> 15
-            'n' -> 16
-            'o' -> 17
-            'ö' -> 18
-            'p' -> 19
-            'r' -> 20
-            's' -> 21
-            'ş' -> 22
-            't' -> 23
-            'u' -> 24
-            'ü' -> 25
-            'v' -> 26
-            'y' -> 27
-            'z' -> 28
+            'd' -> 3
+            'e' -> 4
+            'f' -> 5
+            'g' -> 6
+            'h' -> 7
+            'i' -> 8
+            'j' -> 9
+            'k' -> 10
+            'l' -> 11
+            'm' -> 12
+            'n' -> 13
+            'o' -> 14
+            'p' -> 15
+            'r' -> 16
+            's' -> 17
+            't' -> 18
+            'u' -> 19
+            'v' -> 20
+            'y' -> 21
+            'z' -> 22
+            'ç' -> 23
+            'ğ' -> 24
+            'ı' -> 25
+            'ö' -> 26
+            'ş' -> 27
+            'ü' -> 28
             'â' -> 29
             'î' -> 30
             'û' -> 31
@@ -106,9 +106,27 @@ class Trie {
     private fun findWords(node: TrieNode?, prefix: String, result: MutableList<String>) {
         if (result.size == 5 || node == null) return // Stop if 5 words are found
         if (node.isEndOfWord) result.add(node.originalWord!!)
+
         for ((index, child) in node.children.withIndex()) {
             if (child != null) {
-                val nextChar = if (index < 26) 'a' + index else listOf('ç', 'ğ', 'ı', 'ö', 'ş', 'ü', 'â', 'î', 'û')[index - 26]
+                val nextChar = when (index) {
+                    in 0..22 -> 'a' + index // English alphabet indices
+                    23 -> 'ç'
+                    24 -> 'ğ'
+                    25 -> 'ı'
+                    26 -> 'ö'
+                    27 -> 'ş'
+                    28 -> 'ü'
+                    29 -> 'â'
+                    30 -> 'î'
+                    31 -> 'û'
+                    32 -> ' '
+                    33 -> '/'
+                    34 -> '-'
+                    35 -> '.'
+                    36 -> '\''
+                    else -> '?' // Fallback for unexpected cases
+                }
                 findWords(child, prefix + nextChar, result)
             }
         }

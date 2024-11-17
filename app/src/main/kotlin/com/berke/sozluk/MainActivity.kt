@@ -38,14 +38,10 @@ import java.io.IOException
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: WordViewModel
     private lateinit var wordRepository: WordRepository
-    var handler: Handler = Handler(Looper.myLooper()!!)
     private var adapter: ArrayAdapter<String>? = null
     private lateinit var binding: ActivityMainBinding
     private var debounceJob: Job? = null
 
-    private val changeSuggestionWhenUserStopped = Runnable {
-        changeSuggestions(binding.autoCompleteTextView.text.toString())
-    }
     override fun onDestroy() {
         wordRepository.close()
         super.onDestroy()
@@ -75,11 +71,11 @@ class MainActivity : AppCompatActivity() {
             adapter?.addAll(suggestions)
             adapter?.notifyDataSetInvalidated()
             adapter?.notifyDataSetChanged()
+            adapter?.getFilter()?.filter(binding.autoCompleteTextView.text.toString(), binding.autoCompleteTextView);
         }
 
         val autoCompleteTextView = binding.autoCompleteTextView
         autoCompleteTextView.setAdapter(adapter)
-        changeSuggestions(null)
 
         binding.autoCompleteTextView.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -88,11 +84,9 @@ class MainActivity : AppCompatActivity() {
 
                 // Start a new coroutine for debouncing
                 debounceJob = CoroutineScope(Dispatchers.Main).launch {
-                    delay(50) // 1-second debounce
-                    val text = s?.toString()?.trim() ?: ""
-                    if (text.isNotEmpty()) {
-                        changeSuggestions(text)
-                    }
+                    //delay(50) // 1-second debounce
+                    val text = s?.toString()
+                    changeSuggestions(text)
                 }
             }
 
@@ -196,14 +190,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun changeSuggestions(typedWord: String?) {
-        if (!(typedWord == null || typedWord == "")) {
-            val startTime = System.currentTimeMillis()
-
-            viewModel.fetchSuggestions(typedWord)
-            val endTime = System.currentTimeMillis()
-            Log.d("Performance", "Suggestions fetched in ${endTime - startTime} ms")
-
-        }
+        viewModel.fetchSuggestions(typedWord!!)
     }
 
     fun addTurkishCharacter(view: View) {
