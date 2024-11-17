@@ -9,4 +9,8 @@ class WordRepository(private val databaseAccess: DatabaseAccess) {
     fun getDefinition(word: String): String? {
         return databaseAccess.getDefinition(word)
     }
+
+    fun close() {
+        return databaseAccess.close()
+    }
 }

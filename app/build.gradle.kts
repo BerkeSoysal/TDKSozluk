@@ -43,4 +43,9 @@ dependencies {
     implementation(libs.volley)
     implementation(libs.sqlite)
     implementation(libs.lifecycle)
+    implementation(libs.rxjava) // Latest RxJava version
+    implementation(libs.rxandroid) // RxJava bindings for Android
+    implementation(libs.rxbinding) // RxBinding for views
+    implementation(libs.kotlinx.coroutines.android)
+
 }

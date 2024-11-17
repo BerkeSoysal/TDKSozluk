@@ -1,13 +1,21 @@
 [versions]
 agp = "8.7.2"
 kotlin = "1.9.24"
+kotlinxCoroutinesAndroid = "1.7.3"
 material = "1.12.0"
+rxandroid = "3.0.2"
+rxbinding = "4.0.0"
+rxjava = "3.1.6"
 volley = "1.2.1"
 sqllitehelper = "2.0.1"
 lifecycle = "2.8.7"
 
 [libraries]
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+rxandroid = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rxandroid" }
+rxbinding = { module = "com.jakewharton.rxbinding4:rxbinding", version.ref = "rxbinding" }
+rxjava = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava" }
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
 sqlite = { group = "com.readystatesoftware.sqliteasset", name = "sqliteassethelper", version.ref = "sqllitehelper"}
 lifecycle = {group = "androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "lifecycle"}

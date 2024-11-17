@@ -1,6 +1,5 @@
 package com.berke.sozluk
 
-import Trie
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -25,80 +24,88 @@ import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.berke.sozluk.databinding.ActivityMainBinding
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var databaseAccess: DatabaseAccess
+    private lateinit var viewModel: WordViewModel
+    private lateinit var wordRepository: WordRepository
     var handler: Handler = Handler(Looper.myLooper()!!)
     private var adapter: ArrayAdapter<String>? = null
     private lateinit var binding: ActivityMainBinding
-    var last_text_edit: Long = 0
-    val trie: Trie = Trie()
+    private var debounceJob: Job? = null
 
     private val changeSuggestionWhenUserStopped = Runnable {
-        changeSuggestions(binding.autoCompleteTextView.text.toString(), adapter!!)
+        changeSuggestions(binding.autoCompleteTextView.text.toString())
     }
     override fun onDestroy() {
-        databaseAccess.close()
+        wordRepository.close()
         super.onDestroy()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        connectToDatabase()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        databaseAccess = DatabaseAccess.getInstance(this)
+        val databaseAccess = DatabaseAccess.getInstance(this)
         val repository = WordRepository(databaseAccess)
-        val viewModel = ViewModelProvider(this, ViewModelFactory(repository))[WordViewModel::class.java]
+        viewModel = ViewModelProvider(this, ViewModelFactory(repository))[WordViewModel::class.java]
 
         viewModel.definition.observe(this) { definition ->
             binding.text.text = Html.fromHtml(definition, Html.FROM_HTML_MODE_LEGACY)
         }
-
         val lst = ArrayList<String>()
         adapter = ArrayAdapter(
             this,
             android.R.layout.simple_dropdown_item_1line, lst
         )
 
-        val allWords = databaseAccess.getAllWords()
-        for(word in allWords) {
-            trie.insert(word)
+        viewModel.suggestions.observe(this) { suggestions ->
+            adapter?.clear()
+            adapter?.addAll(suggestions)
+            adapter?.notifyDataSetInvalidated()
+            adapter?.notifyDataSetChanged()
         }
 
         val autoCompleteTextView = binding.autoCompleteTextView
         autoCompleteTextView.setAdapter(adapter)
-        changeSuggestions(null, adapter!!)
-        autoCompleteTextView.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(mEdit: Editable) {
-                last_text_edit = System.currentTimeMillis()
-                if (mEdit.length > 0) {
-                    handler.postDelayed(changeSuggestionWhenUserStopped, 100)
+        changeSuggestions(null)
+
+        binding.autoCompleteTextView.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                // Cancel the previous job
+                debounceJob?.cancel()
+
+                // Start a new coroutine for debouncing
+                debounceJob = CoroutineScope(Dispatchers.Main).launch {
+                    delay(50) // 1-second debounce
+                    val text = s?.toString()?.trim() ?: ""
+                    if (text.isNotEmpty()) {
+                        changeSuggestions(text)
+                    }
                 }
             }
 
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-                /*
-                Dont need this
-                */
-                //You need to remove this to run only once
-                handler.removeCallbacks(changeSuggestionWhenUserStopped)
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // No action needed here
             }
 
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                /*
-                Dont need this either
-                */
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // No action needed here
             }
         })
 
-        //Set keyboard button to fire search event
+            //Set keyboard button to fire search event
         binding.autoCompleteTextView.setOnEditorActionListener { _: TextView?, actionId: Int, _: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val searchedWord = binding.autoCompleteTextView.getText().toString().trim { it <= ' ' }
@@ -128,16 +135,6 @@ class MainActivity : AppCompatActivity() {
             val searchedWord = binding.autoCompleteTextView.getText().toString().trim { it <= ' ' }
             getAudioFromWeb(searchedWord)
             viewModel.fetchDefinition(searchedWord)
-        }
-    }
-
-
-    private fun connectToDatabase() {
-        databaseAccess = DatabaseAccess.getInstance(this)
-        try {
-            databaseAccess.open()
-        } catch (e: RuntimeException) {
-            Log.e("app", "exception", e)
         }
     }
 
@@ -198,13 +195,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun changeSuggestions(typedWord: String?, adapter: ArrayAdapter<String>) {
-        val words: List<String>
+    private fun changeSuggestions(typedWord: String?) {
         if (!(typedWord == null || typedWord == "")) {
-            words = trie.searchByPrefix(typedWord)
-            adapter.clear()
-            adapter.addAll(words)
-            adapter.filter.filter("", null)
+            val startTime = System.currentTimeMillis()
+
+            viewModel.fetchSuggestions(typedWord)
+            val endTime = System.currentTimeMillis()
+            Log.d("Performance", "Suggestions fetched in ${endTime - startTime} ms")
+
         }
     }
 
