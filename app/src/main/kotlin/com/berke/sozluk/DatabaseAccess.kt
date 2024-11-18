@@ -47,6 +47,18 @@ private constructor(context: Context) {
         return null
     }
 
+    fun getRandomWord(): List<String>? {
+        val cursor = database!!.rawQuery("SELECT * FROM words ORDER BY RANDOM() LIMIT 1", null)
+        cursor.moveToFirst()
+        if (cursor.count > 0) {
+            val word = cursor.getString(0)
+            val meaning = cursor.getString(1)
+            cursor.close()
+            return listOf(word,meaning)
+        }
+        return null
+    }
+
     companion object {
         private lateinit var instance: DatabaseAccess
 

@@ -13,4 +13,8 @@ class WordRepository(private val databaseAccess: DatabaseAccess) {
     fun close() {
         return databaseAccess.close()
     }
+
+    fun fetchRandomWord(): List<String>? {
+        return databaseAccess.getRandomWord()
+    }
 }

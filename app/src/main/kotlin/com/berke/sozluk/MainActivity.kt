@@ -74,6 +74,14 @@ class MainActivity : AppCompatActivity() {
             adapter?.getFilter()?.filter(binding.autoCompleteTextView.text.toString(), binding.autoCompleteTextView);
         }
 
+        viewModel.word.observe(this) { word ->
+            binding.autoCompleteTextView.setText(word)
+        }
+
+        binding.random.setOnClickListener() {
+            viewModel.fetchRandomWord()
+        }
+
         val autoCompleteTextView = binding.autoCompleteTextView
         autoCompleteTextView.setAdapter(adapter)
 

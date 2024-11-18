@@ -12,6 +12,8 @@ class WordViewModel(private val repository: WordRepository): ViewModel() {
 
     private val _definition = MutableLiveData<String>()
     val definition: LiveData<String> = _definition
+    private val _word = MutableLiveData<String>()
+    val word: LiveData<String> = _word
 
     private val _suggestions = MutableLiveData<List<String>>()
     val suggestions: LiveData<List<String>> = _suggestions
@@ -36,5 +38,13 @@ class WordViewModel(private val repository: WordRepository): ViewModel() {
         val results = trie.searchByPrefix(prefix)
         Log.d("WordViewModel", "Suggestions: $results")
         _suggestions.postValue(results)
+    }
+
+    fun fetchRandomWord() {
+        viewModelScope.launch {
+            val result = repository.fetchRandomWord()
+            _definition.postValue(result?.get(1) ?: "Sözcük bulunamadı.")
+            _word.postValue(result?.get(0) ?: "")
+        }
     }
 }
