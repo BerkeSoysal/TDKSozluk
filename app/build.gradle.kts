@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.berke.sozluk"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.berke.sozluk"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 38
         versionName = "1.4"
 
